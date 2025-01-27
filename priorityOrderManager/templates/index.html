@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card shadow-sm">
+  <div class="card-body">
+    <h2 class="card-title text-primary fw-bold"><i class="bi bi-house-fill me-2 text-primary"></i>Ana Sayfa</h2>
+    {% if logged_in_user %}
+    <div class="alert alert-info">
+      Hoş geldiniz, <strong>{{ logged_in_user }}</strong>!
+    </div>
+    {% endif %}
+    <p class="card-text">
+      Bu uygulama, eş zamanlı sipariş yönetimi ve stok güncellemelerini dinamik önceliklendirme, thread, semafor ve mutex mekanizmaları ile yönetir.
+    </p>
+    <p class="card-text">
+      Premium müşteriler daha yüksek baz skorla başlar (15), standart müşteriler 10 skorla. Bekleme süresi (⏳) arttıkça öncelik (⚡) yükselir. Semafor en fazla 2 siparişin aynı anda işlenmesine izin verir.
+    </p>
+    <p class="card-text">
+      Müşteri, Ürün, Sipariş, Log panellerini inceleyebilir; "Test Et" ile toplu sipariş oluşturabilir, Log ve Sipariş Paneli üzerinden sistemin davranışlarını izleyebilirsiniz.
+    </p>
+  </div>
+</div>
+{% endblock %}

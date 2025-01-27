@@ -1,0 +1,187 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card shadow-sm">
+  <div class="card-body">
+    <h2 class="card-title fw-bold text-primary">
+      <i class="bi bi-box-seam me-2 text-primary"></i>Ürün Paneli
+    </h2>
+    <p class="text-muted">Mevcut ürünlerin stok durumunu görebilir,güncelleyebilir,silebilir ve yeni ürünler ekleyebilirsiniz.</p>
+
+
+    <table class="table table-borderless align-middle mt-3">
+        <thead class="table-dark">
+            <tr>
+                <th>Ürün ID</th>
+                <th>Ürün Adı</th>
+                <th>Stok</th>
+                <th>Stok Durum Gösterimi</th>
+                <th>Silme</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for p in products %}
+        <tr>
+            <td>{{ p.ProductID }}</td>
+            <td>{{ p.ProductName }}</td>
+            <td>{{ p.Stock }}</td>
+            <td>
+                <div class="progress position-relative" style="width:250px;" data-bs-toggle="tooltip" title="Stok: {{p.Stock}}">
+                  <div class="progress-bar
+                    {% if p.Stock < 50 %} bg-danger
+                    {% elif p.Stock < 200 %} bg-warning
+                    {% else %} bg-success
+                    {% endif %}"
+                    role="progressbar"
+                    style="width:{{(p.Stock/1000)*100}}%"
+                    aria-valuenow="{{ p.Stock }}" aria-valuemin="0" aria-valuemax="1000">
+                  </div>
+                </div>
+            </td>
+            <td>
+                <button class="btn btn-danger btn-sm deleteProductBtn" data-product-id="{{ p.ProductID }}">Sil</button>
+            </td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <h3 class="mt-4">Stok Güncelle</h3>
+    <p class="text-muted">Negatif değer girerseniz stok azalır,pozitif değer girerseniz artar.Seçtiğiniz değeri sağda görebilirsiniz.</p>
+    <form id="stockForm" class="row gy-2 gx-3 align-items-center">
+
+        <div class="col-auto">
+          <label class="form-label">Ürün</label>
+          <select class="form-select" name="product_id">
+            {% for p in products %}
+            <option value="{{ p.ProductID }}">{{ p.ProductID }} - {{ p.ProductName }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+
+        <div class="col-auto" style="max-width:300px;">
+          <label class="form-label">Artış/Azalış</label>
+          <input type="range" class="form-range" name="sliderValue" id="sliderRange" min="-100" max="100" value="0" step="1">
+        </div>
+        <div class="col-auto">
+          <span class="fs-5" id="sliderDisplay">0</span>
+        </div>
+
+        <input type="hidden" name="amount" id="hiddenAmount" value="0">
+
+        <div class="col-auto mt-4">
+          <button type="submit" class="btn btn-secondary btn-gradient">
+            <i class="bi bi-arrow-repeat me-1"></i>Güncelle
+          </button>
+        </div>
+    </form>
+    <div id="stockResult" class="mt-3"></div>
+
+    <h3 class="mt-4">Ürün Ekle</h3>
+<p class="text-muted">Yeni ürünler ekleyerek stoğunuzu büyütebilirsiniz.</p>
+<div class="mb-3">
+    <div class="row g-2 align-items-center">
+        <div class="col-auto">
+            <input type="text" class="form-control" id="productNameInput" placeholder="Ürün Adı">
+        </div>
+        <div class="col-auto">
+            <input type="number" class="form-control" id="productStockInput" placeholder="Stok">
+        </div>
+        <div class="col-auto">
+            <input type="number" class="form-control" id="productPriceInput" placeholder="Fiyat (TL)">
+        </div>
+        <div class="col-auto">
+            <button class="btn btn-primary" id="addProductBtn">Ekle</button>
+        </div>
+    </div>
+    <div id="productAddResult" class="mt-2"></div>
+</div>
+
+  </div>
+</div>
+<script>
+$(document).ready(function(){
+
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+
+
+    const sliderRange = document.getElementById('sliderRange');
+    const sliderDisplay = document.getElementById('sliderDisplay');
+
+    sliderRange.addEventListener('input', function () {
+        const sliderValue = parseInt(this.value, 10);
+
+
+        sliderDisplay.textContent = sliderValue;
+
+
+        if (sliderValue > 0) {
+            this.style.background = 'linear-gradient(to right, #28a745, #28a745)';
+            sliderDisplay.style.color = '#28a745';
+        } else if (sliderValue < 0) {
+            this.style.background = 'linear-gradient(to right, #dc3545, #dc3545)';
+            sliderDisplay.style.color = '#dc3545';
+        } else {
+            this.style.background = 'linear-gradient(to right, #dee2e6, #dee2e6)';
+            sliderDisplay.style.color = '#6c757d';
+        }
+    });
+
+    $("#sliderRange").on("input", function(){
+        let val = $(this).val();
+        $("#sliderDisplay").text(val);
+        $("#hiddenAmount").val(val);
+    });
+
+    $("#stockForm").on("submit", function(e){
+        e.preventDefault();
+        $.post("/product/update_stock", $(this).serialize(), function(data){
+            if(data.success){
+                $("#stockResult").html("<div class='alert alert-success'>Yeni stok: " + data.new_stock + "</div>");
+                setTimeout(function(){ location.reload(); }, 1000);
+            } else {
+                $("#stockResult").html("<div class='alert alert-danger'>Hata: " + data.message + "</div>");
+            }
+        });
+    });
+
+
+$("#addProductBtn").click(function(){
+    const productName = $("#productNameInput").val();
+    const stock = $("#productStockInput").val();
+    const price = $("#productPriceInput").val();
+
+    $.post("/product/add", {
+        product_name: productName,
+        stock: stock,
+        price: price
+    }, function(resp){
+        if(resp.success){
+            $("#productAddResult").html("<div class='alert alert-success'>"+ resp.message +" - Yeni ID: "+ resp.ProductID +"</div>");
+            setTimeout(() => location.reload(), 1000);
+        } else {
+            $("#productAddResult").html("<div class='alert alert-danger'>" + (resp.error || "Hata") + "</div>");
+        }
+    });
+});
+
+
+    $(".deleteProductBtn").click(function(){
+        const productID = $(this).data("product-id");
+        $.post("/product/delete", { product_id: productID }, function(resp){
+            if(resp.success){
+                alert(resp.message);
+                location.reload();
+            } else {
+                alert(resp.error || "Hata oluştu");
+            }
+        });
+    });
+});
+</script>
+
+
+{% endblock %}

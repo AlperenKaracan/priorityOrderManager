@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card shadow-sm">
+  <div class="card-body position-relative">
+    <h2 class="card-title fw-bold text-primary d-flex align-items-center">
+      <i class="bi bi-card-list me-2 text-warning"></i> Sipariş Paneli
+    </h2>
+    <p class="text-muted mb-4">
+      Bu panelde kuyruktaki siparişleri,bekleme sürelerini,işlem durumlarını ve ürün bilgilerini gözlemleyebilirsiniz.
+      <span class="badge bg-warning text-dark">★ Premium</span> müşteriler daha yüksek baz öncelik skoruyla başlar. Bekleme süresi (<span class="text-secondary">⏳</span>) arttıkça dinamik öncelik (<span class="text-danger">⚡</span>) yükselir.
+      Arka planda çoklu thread’ler ve semafor (aynı anda en fazla 2 sipariş) kullanılarak işlem yapılır. Bu sayede bazı siparişler kuyrukta bekler, bekleme süresi artar ve premium müşteriler avantajlı duruma gelir.
+    </p>
+    <div class="table-responsive position-relative">
+      <div class="refresh-indicator"></div>
+      <table class="table align-middle table-hover" id="orderTable">
+          <thead class="table-dark">
+              <tr>
+                  <th scope="col">Sipariş ID</th>
+                  <th scope="col">Müşteri ID</th>
+                  <th scope="col">Müşteri Türü</th>
+                  <th scope="col">Ürün ID</th>
+                  <th scope="col">Miktar</th>
+                  <th scope="col" data-bs-toggle="tooltip" title="Bekleme Süresi (⏳): Siparişin kuyrukta kaldığı süre">⏳ Bekleme Süresi (sn)</th>
+                  <th scope="col" data-bs-toggle="tooltip" title="Dinamik Öncelik (⚡): Baz Skor + (Bek.Süresi×0.5)">⚡ Öncelik</th>
+                  <th scope="col">Durum</th>
+              </tr>
+          </thead>
+          <tbody class="fade-in-rows">
+          {% for o in orders %}
+          <tr class="order-row {% if o.CustomerType == 'Premium' %}premium-row{% endif %}">
+              <td>{{ o.OrderID }}</td>
+              <td>{{ o.CustomerID }}</td>
+              <td>
+                {% if o.CustomerType == 'Premium' %}
+                  <span class="badge bg-warning text-dark">★ Premium</span>
+                {% else %}
+                  Standart
+                {% endif %}
+              </td>
+              <td>📦 {{ o.ProductID }}</td>
+              <td>{{ o.Quantity }}</td>
+              <td class="wait-time" style="--wait-time: {{o.WaitTime}};">{{ o.WaitTime }}</td>
+              <td class="priority-cell" style="--priority: {{o.DynamicPriority}};">
+                {{ o.DynamicPriority }}
+                {% if o.DynamicPriority > 20 %}
+                <i class="bi bi-lightning-charge-fill text-danger priority-flash"></i>
+                {% else %}
+                <i class="bi bi-lightning-charge-fill text-warning"></i>
+                {% endif %}
+              </td>
+              <td>
+                {% if o.Status == 'Approved' %}
+                  <span class="text-success fw-bold">✔️ Onaylandı</span>
+                {% elif o.Status == 'Rejected' %}
+                  <span class="text-danger fw-bold">❌ Reddedildi</span>
+                {% else %}
+                  <span class="text-secondary">Beklemede</span>
+                {% endif %}
+              </td>
+          </tr>
+          {% endfor %}
+          </tbody>
+      </table>
+    </div>
+    <small class="text-muted">
+      Tablo her 3 saniyede bir otomatik yenilenir.
+    </small>
+
+  </div>
+</div>
+<script src="{{ url_for('static', filename='js/order_update.js') }}"></script>
+<script>
+$(document).ready(function(){
+  var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+  var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+      return new bootstrap.Tooltip(tooltipTriggerEl)
+  })
+});
+</script>
+{% endblock %}

@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+    {% if error %}
+        <div class="alert alert-danger">{{ error }}</div>
+        <a href="/customers/panel" class="btn btn-secondary">Geri Dön</a>
+    {% else %}
+        <h2>{{ customer.CustomerName }} ({{ customer.CustomerID }}) - Siparişleri</h2>
+        <a href="/customers/panel" class="btn btn-secondary mb-3">Geri Dön</a>
+
+        {% if orders %}
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Sipariş ID</th>
+                    <th>Ürün ID</th>
+                    <th>Ürün Adı</th>
+                    <th>Birim Fiyat (TL)</th>
+                    <th>Miktar</th>
+                    <th>Toplam (TL)</th>
+                    <th>Durum</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for order in orders %}
+                <tr>
+                    <td>{{ order.OrderID }}</td>
+                    <td>{{ order.ProductID }}</td>
+                    <td>{{ order.ProductName }}</td>
+                    <td>{{ "%.2f"|format(order.Price) }}</td>
+                    <td>{{ order.Quantity }}</td>
+                    <td>{{ "%.2f"|format(order.Price * order.Quantity) }}</td>
+                    <td>{{ order.Status }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p>Bu müşterinin hiç siparişi bulunmamaktadır.</p>
+        {% endif %}
+    {% endif %}
+</div>
+{% endblock %}

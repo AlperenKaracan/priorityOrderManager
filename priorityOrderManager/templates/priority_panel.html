@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Dinamik Öncelik ve Bekleme Paneli</h2>
+<p class="text-muted">Bekleme süresi güncellendikçe satırlar yer değiştirecek.</p>
+<table class="table table-hover" id="priorityTable">
+  <thead class="table-dark">
+    <tr>
+      <th>OrderID</th>
+      <th>Müşteri</th>
+      <th>Ürün</th>
+      <th>Miktar</th>
+      <th>Bekleme (gün)</th>
+      <th>Dinamik Öncelik</th>
+    </tr>
+  </thead>
+  <tbody></tbody>
+</table>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/priority_anim.js') }}"></script>
+{% endblock %}

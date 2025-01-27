@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card shadow-sm">
+  <div class="card-body">
+    <h2 class="card-title fw-bold text-primary">
+      <i class="bi bi-list-ul me-2 text-success"></i>Log Paneli
+      <span class="live-dot"></span><small class="text-success fw-bold">Canlı</small>
+    </h2>
+    <p class="text-muted mb-3">
+      Sistemdeki son işlemleri gerçek zamanlı olarak izleyebilirsiniz. Her 3 saniyede bir güncellenir.
+    </p>
+    <div id="logContainer" class="log-container border rounded bg-white p-3" style="height:300px; overflow-y:auto; overflow-x:hidden;">
+      <div class="text-muted text-center">Loglar yükleniyor...</div>
+    </div>
+  </div>
+</div>
+
+<script>
+function loadLogs(){
+    $.get("/logs/list", function(data){
+        console.log("Log Verisi:", data);
+        if(data.error){
+            $("#logContainer").html("<div class='alert alert-danger'>Hata: " + data.error + "</div>");
+            return;
+        }
+        if(data.length === 0){
+            $("#logContainer").html("<div class='text-muted text-center'>Gösterilecek log yok.</div>");
+            return;
+        }
+        var html = "<ul class='list-unstyled mb-0'>";
+        data.forEach(function(log){
+            let dateStr;
+            if(typeof log.timestamp === "string"){
+
+                let d = new Date(log.timestamp);
+                dateStr = d.toLocaleString("tr-TR");
+            } else if(typeof log.timestamp === "number") {
+
+                let d = new Date(log.timestamp * 1000);
+                dateStr = d.toLocaleString("tr-TR");
+            } else {
+                dateStr = "Bilinmiyor";
+            }
+
+
+            let icon = "<i class='bi bi-info-circle text-secondary me-1'></i>";
+            if(log.log_type.includes("created")) {
+                icon = "<i class='bi bi-plus-circle text-primary me-1'></i>";
+            } else if(log.log_type.includes("approved")) {
+                icon = "<i class='bi bi-check-circle text-success me-1'></i>";
+            } else if(log.log_type.includes("rejected")) {
+                icon = "<i class='bi bi-x-circle text-danger me-1'></i>";
+            } else if(log.log_type.includes("çıkış")) {
+                icon = "<i class='bi bi-door-closed text-warning me-1'></i>";
+            }
+
+
+            let userInfo = log.user ? " <small class='text-muted'>[" + log.user + "]</small>" : "";
+
+
+            let customerInfo = log.customer_name ? " <strong>Müşteri:</strong> " + log.customer_name + "<br>" : "";
+
+
+            html += "<li class='log-item mb-2'>" + icon + customerInfo + log.message + " <small class='text-muted'>(" + dateStr + ")</small>" + userInfo + "</li>";
+        });
+        html += "</ul>";
+        $("#logContainer").html(html);
+    }).fail(function(xhr, status, error){
+        console.log("AJAX Hatası:", error);
+        $("#logContainer").html("<div class='alert alert-danger'>Logları yüklerken bir hata oluştu: " + error + "</div>");
+    });
+}
+
+setInterval(loadLogs, 3000);
+loadLogs();
+</script>
+{% endblock %}
