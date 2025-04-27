@@ -1,6 +1,6 @@
 # Eş Zamanlı Sipariş ve Stok Yönetimi Sistemi
 
-Hızlı ve güvenli bir sipariş yönetimi deneyimi sunan web uygulaması. Flask ile geliştirildi.
+Hızlı ve güvenli bir sipariş yönetimi deneyimi sunan web uygulaması.Flask ile geliştirildi.
 
 ---
 
