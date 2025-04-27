@@ -7,14 +7,14 @@ $(document).ready(function(){
       data: $(this).serialize(),
       success: function(resp){
         if(resp.success){
-          $("#updateProfileResult").html("<div class='alert alert-success'>" + resp.message + "</div>");
+          $("#updateProfileResult").html('<div class="alert alert-success"><i class="bi bi-check-circle"></i> ' + resp.message + '</div>');
           setTimeout(()=>location.reload(), 1000);
         } else {
-          $("#updateProfileResult").html("<div class='alert alert-danger'>Hata: " + resp.message + "</div>");
+          $("#updateProfileResult").html('<div class="alert alert-danger"><i class="bi bi-exclamation-triangle"></i> Hata: ' + resp.message + '</div>');
         }
       },
       error: function(){
-        $("#updateProfileResult").html("<div class='alert alert-danger'>Beklenmeyen bir hata oluştu.</div>");
+        $("#updateProfileResult").html('<div class="alert alert-danger"><i class="bi bi-exclamation-octagon"></i> Beklenmeyen hata oluştu.</div>');
       }
     });
   });

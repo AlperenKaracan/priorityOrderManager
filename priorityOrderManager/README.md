@@ -1,117 +1,89 @@
 # Eş Zamanlı Sipariş ve Stok Yönetimi Sistemi
 
-## İçindekiler
-
-- [Genel Bakış](#genel-bakış)
-- [Özellikler](#özellikler)
-- [Kullanılan Teknolojiler](#kullanılan-teknolojiler)
-- [Uygulama Görselleri](#uygulama-görselleri)
----
-
-## Genel Bakış
-
-Eş Zamanlı Sipariş ve Stok Yönetimi Sistemi, **müşteri**, **ürün** ve **sipariş yönetimi** süreçlerini daha hızlı ve güvenilir bir şekilde gerçekleştirmelerine yardımcı olan modern bir web uygulamasıdır. 
-
-Sistem, farklı müşteri türlerini (Premium ve Standard) destekler ve **öncelik bazlı sipariş işleme mekanizması** ile en yüksek önceliğe sahip siparişleri işleme alır. Ayrıca, kullanıcı dostu bir arayüz ve detaylı loglama özelliği mevcuttur.
+Hızlı ve güvenli bir sipariş yönetimi deneyimi sunan web uygulaması. Flask ile geliştirildi.
 
 ---
 
-## Özellikler
+## ✨ Öne Çıkan Özellikler
 
-### **Müşteri Yönetimi**
-- Yeni müşteriler ekleme, silme ve düzenleme.
-- Müşteri türüne göre farklı görünümler (Premium müşteriler yanında yıldız simgesi ile vurgulanır).
-- Müşterilerin toplam harcamalarını ve kalan bütçelerini görüntüleme.
+### <i class="bi bi-person-badge"></i> Müşteri Yönetimi
+* **Kayıt & Giriş:** Email/şifre ile kayıt ve giriş. Şifreler hashlenerek korunur.
+* **Email Doğrulama:** Kayıt sonrası email onayı ile hesap güvenliği.
+* **🔒 İsteğe Bağlı 2FA:** Google Authenticator ile ekstra güvenlik katmanı. Profil veya kayıt sırasında kolayca etkinleştirme/devre dışı bırakma.
+* **Profil Merkezi:** Kullanıcı bilgileri, bakiye, harcama geçmişi tek ekranda. Şifre değiştirme ve 2FA yönetimi.
+* **Şifre Sıfırlama:** "Şifremi Unuttum?" özelliği ile email üzerinden kolay şifre sıfırlama.
+* **Yönetici Kontrolü:** Müşteri ekleme, silme ve bütçe yönetimi.
+* **Tema Seçimi:** Açık ve Koyu tema arasında tek tıkla geçiş. Seçiminiz hatırlanır.
+### <i class="bi bi-box-seam"></i> Ürün Yönetimi
+* **Görsel Stok Takibi:** Ürünler; isim, fiyat ve stok durumu (progress bar ile) listelenir.
+* **Stok Güncelleme:** Yönetici, interaktif slider ile stokları anında artırıp azaltabilir.
+* **Ürün Ekleme/Silme:** Yönetici arayüzünden hızlıca ürün ekleme ve silme işlemleri.
+* **Anlık Güncelleme:** Stok değişiklikleri sipariş formlarına anında yansır (AJAX).
 
-### **Ürün Yönetimi**
-- Yeni ürünler ekleme, silme ve stok yönetimi.
-- Ürün fiyatlarını ve mevcut stok durumlarını görsel bir tabloda listeleme.
+### <i class="bi bi-cart4"></i> Sipariş Yönetimi
+* **Sipariş Oluşturma:** Müşteriler veya yöneticiler tarafından, güncel stok/fiyat bilgisiyle kolayca sipariş verilebilir.
+* **Detaylı Listeleme:** Siparişler; ID, müşteri, ürün, miktar, toplam tutar ve durum bilgileriyle (renk kodlu) listelenir.
+* **Durum Takibi:** Siparişlerin `Pending` <span class="badge bg-warning text-dark">🟡</span>, `Approved` <span class="badge bg-success">🟢</span> veya `Rejected` <span class="badge bg-danger">🔴</span> durumları anlık olarak takip edilebilir.
+* **Akıllı İşleme:** Arka planda çalışan thread'ler, müşteri tipi (Premium ⭐ öncelikli) ve bekleme süresine göre dinamik öncelik hesaplayarak siparişleri adil ve verimli bir şekilde işler (stok/bütçe kontrolü dahil).
+* **Gerçek Zamanlı Güncelleme:** Sipariş tablosu AJAX ile periyodik olarak güncellenerek en son durum yansıtılır.
+* **Test Sistemi:** Yönetici tek tuşla rastgele toplu siparişler oluşturarak sistemi test edebilir.
 
-### **Sipariş Yönetimi**
-- Müşteriler için sipariş oluşturma.
-- Siparişlerin birim fiyat ve toplam maliyet detaylarıyla listelenmesi.
-- Siparişlerin **Pending**, **Approved** veya **Rejected** durumlarını takip etme.
-- **Arka planda çalışan thread'ler** ile dinamik öncelik hesaplaması ve işleme.
+### <i class="bi bi-clipboard-data"></i> Loglama ve İzleme
+* **Detaylı Kayıt:** Sistemdeki tüm önemli olaylar (sipariş, kullanıcı işlemleri, hatalar vb.) titizlikle loglanır.
+* **Yönetici Log Paneli:** Loglar zaman damgasıyla listelenir. Checkbox'lar ile log türüne göre dinamik filtreleme imkanı.
 
-### **Loglama ve İzleme**
-- Gerçek zamanlı loglama ile tüm sistem olaylarının kaydını tutma.
-- İşlemlerin neden başarılı veya başarısız olduğunu gösteren detaylı log paneli.
+### <i class="bi bi-shield-check"></i> Güvenlik Özellikleri
+* **Güvenli Şifreleme:** Şifreler modern hash algoritmaları ile korunur.
+* **Zaman Damgalı Tokenlar:** Email onayı ve şifre sıfırlama için güvenli, süreli tokenlar kullanılır.
+* **2FA Desteği:** Google Authenticator ile TOTP tabanlı ek güvenlik.
+* **Eş Zamanlılık Kontrolü:** `Lock` ve `Semaphore` mekanizmaları ile veri bütünlüğü korunur.
+* **Yetkilendirme:** Yönetici fonksiyonlarına erişim rol bazlı kontrol edilir.
 
-### **Kullanıcı Dostu Arayüz**
-- Modern, şık ve responsive bir tasarım.
-- Etkileşimli butonlar ve araçlarla zenginleştirilmiş kullanıcı deneyimi.
-
-### **Sistem Testi**
-- "Test Et" özelliği ile sisteme 10 adet rastgele sipariş ekleyerek canlı olarak test etme.
-
----
-
-## Kullanılan Teknolojiler
-
-- **Backend:**
-  - **Python (Flask)**
-  - **MongoDB**
-
-- **Diğer:**
-  - **Threading**: Arka planda sipariş işleme ve öncelik hesaplaması.
-
----
-
-## Uygulama Görselleri
-
-### **1. Müşteri Paneli**
-Tüm müşterilerin listelendiği ve yönetildiği ana panel.
-
-![Müşteri Paneli](images/musteriPaneli.png)
+### <i class="bi bi-speedometer2"></i> Yönetici Paneli
+* **Dashboard:** Sistem istatistikleri (müşteri, ürün, sipariş sayıları, toplam gelir vb.) tek bir ekranda.
+* **Veri Görselleştirme:** Sipariş durumu dağılımı gibi önemli metrikler Chart.js ile interaktif grafiklerle sunulur.
 
 ---
 
-### **2. Müşteri Ekleme**
-Yeni müşteri eklemek için kullanılan form.
+## 🛠️ Kullanılan Teknolojiler
 
-![Müşteri Ekleme](images/musteriEkleme.png)
-
----
-
-### **3. Ürün Paneli**
-Tüm ürünlerin listelendiği ve yönetildiği panel.
-
-![Ürün Paneli](images/urunPaneli.png)
+* **Backend:** Python, Flask, Flask-PyMongo, Flask-Mail, PyOTP, itsdangerous, Werkzeug, threading
+* **Frontend:** HTML5, CSS3, JavaScript, jQuery, Bootstrap 5, Chart.js
+* **Veritabanı:** MongoDB
 
 ---
 
-### **4. Sipariş Paneli**
-Seçilen müşterinin siparişlerini görüntülediği panel.
 
-![Müşteri Sipariş Paneli](images/musteriSiparis.png)
 
----
+## 🚀 Kullanım Kılavuzu
 
-### **5. Sipariş Verme**
-Müşterilerden sipariş oluşturmak için kullanılan form.
-
-![Sipariş Verme](images/siparisVerme.png)
+1.  **Hesap Oluşturun:** "Kayıt Ol" sayfasını kullanın, emailinizi doğrulayın.
+2.  **Giriş Yapın:** Email ve şifrenizle (varsa 2FA koduyla) giriş yapın.
+3.  **Panelleri Keşfedin:** Navigasyon menüsünü kullanarak Müşteri, Ürün, Sipariş, Log ve Yönetici panellerine erişin.
+4.  **İşlemleri Gerçekleştirin:** Sipariş verin, profilinizi güncelleyin, (yöneticiyseniz) ürün/müşteri/stok yönetimi yapın.
+5.  **Temayı Değiştirin:** Sağ alttaki buton ile açık/koyu tema arasında geçiş yapın.
 
 ---
 
-### **6. Bütçe Güncelleme**
-Müşteri bütçesini güncellemek için
+## 📸 Uygulama Görselleri
 
-![Bütçe Güncelleme](images/butceGuncelle.png)
+*(Uygulamanın temel ekranlarından bazıları aşağıdadır.)*
 
----
+**Giriş ve Kullanıcı İşlemleri:**
 
-### **7. Loglama Paneli**
-Gerçek zamanlı sistem loglarının görüntülendiği panel.
+| Kayıt Ekranı                                       | Giriş Ekranı                                       |                   Şifremi Unuttum                    | Şifre Değiştirme                                     |
+| :------------------------------------------------: | :------------------------------------------------: |:----------------------------------------------------:| :-------------------------------------------------: |
+| ![Kayıt Ekranı](images/kayitOl.png)                | ![Giriş Ekranı](images/girisYap.png)               |    ![Şifremi Unuttum](images/sifremiUnuttum.png)     | ![Şifre Değiştirme](images/changePassword.png)      |
+| _Kullanıcı dostu kayıt formu (2FA seçeneği ile)._ | _Güvenli giriş ekranı ve şifre kurtarma linki._ | _Email adresine şifre sıfırlama bağlantı gönderimi._ | _Profil üzerinden güvenli şifre güncelleme._ |
 
-![Loglama Paneli](images/loglamaPaneli.png)
+**Yönetim Panelleri:**
 
----
+| Müşteri Paneli                                      | Ürün Paneli                                           | Sipariş Paneli                                        |
+| :-------------------------------------------------: | :----------------------------------------------------: | :---------------------------------------------------: |
+| ![Müşteri Paneli](images/musteriPaneli.png)         | ![Ürün Paneli](images/urunPaneli.png)                  | ![Sipariş Paneli](images/musteriSiparis.png)          |
+| _Müşteriler listelenir (Premium ⭐ vurgulu)._     | _Ürünler stok durumuyla listelenir, stok güncellenir._ | _Siparişler durum renkleriyle ve anlık güncellenir._ |
 
-### **8. Kayıt ve Giriş**
-Kayıt olma ve giriş yapma ekranları.
-
-![Kayıt](images/kayitOl.png)
-![Giriş](images/girisYap.png)
-
----
+| Sipariş Verme                                          |                   Bütçe Güncelleme                    |                   Loglama Paneli                    |                   Yönetici Paneli                   |
+| :----------------------------------------------------: |:-----------------------------------------------------:|:---------------------------------------------------:|:---------------------------------------------------:|
+| ![Sipariş Verme](images/siparisVerme.png)              |     ![Bütçe Güncelleme](images/butceGuncelle.png)     |       ![Loglama Paneli](images/logPaneli.png)       |    ![Yönetici Paneli](images/yoneticiPaneli.png)    |
+| _Sipariş verirken güncel stok/fiyat bilgisi görünür._ | _Yönetici kolayca müşteri bütçesini güncelleyebilir._ | _Loglar detaylı listelenir ve dinamik filtrelenir._ | _Sistem istatistikleri ve grafiklerle genel bakış._ |

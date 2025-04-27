@@ -1,6 +1,4 @@
-import heapq
-import threading
-import time
+import heapq, threading, time
 from utils.priority import compute_priority
 
 queue_lock = threading.Lock()
@@ -42,7 +40,6 @@ class PriorityOrderQueue:
                 current_orders.append((new_priority, cnt, data))
             for p, c, d in current_orders:
                 heapq.heappush(self.heap, (-p, c, d))
-
             from extensions import mongo
             result = []
             temp = []
@@ -52,16 +49,9 @@ class PriorityOrderQueue:
                 order = mongo.db.orders.find_one({"OrderID": d["order_id"]})
                 if order:
                     wait_time = round(time.time() - d["created_at"], 2)
-                    result.append({
-                        "OrderID": order["OrderID"],
-                        "CustomerID": order["CustomerID"],
-                        "ProductID": order["ProductID"],
-                        "Quantity": order["Quantity"],
-                        "WaitTime": wait_time,
-                        "DynamicPriority": round(p, 2),
-                        "Status": order["Status"],
-                        "CustomerType": d["customer_type"]
-                    })
+                    order["WaitTime"] = wait_time
+                    order["DynamicPriority"] = round(p, 2)
+                    result.append(order)
                 temp.append((neg_p, c, d))
             for item in temp:
                 heapq.heappush(self.heap, item)

@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card shadow-lg mx-auto" style="max-width:500px;">
+  <div class="card-header bg-info text-white">
+    <h4 class="mb-0"><i class="bi bi-shield-lock-fill me-2"></i>2FA Doğrulama</h4>
+  </div>
+  <div class="card-body">
+    <form id="twoFactorForm" method="POST">
+      <div class="mb-3">
+        <label class="form-label">Google Authenticator'dan Gelen Kod</label>
+        <input type="text" name="otp" class="form-control" required placeholder="6 haneli kod">
+      </div>
+      <button type="submit" class="btn btn-info w-100">Doğrula</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

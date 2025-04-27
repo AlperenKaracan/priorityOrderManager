@@ -3,8 +3,8 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-stock_lock=threading.Lock()
-order_semaphore=threading.Semaphore(10)
+stock_lock = threading.Lock()
+order_semaphore = threading.Semaphore(10)
 
 def acquire_stock_lock():
     stock_lock.acquire()
@@ -25,11 +25,11 @@ def release_order_semaphore():
 class StockLock:
     def __enter__(self):
         acquire_stock_lock()
-    def __exit__(self,exc_type,exc_val,exc_tb):
+    def __exit__(self, exc_type, exc_val, exc_tb):
         release_stock_lock()
 
 class OrderSemaphore:
     def __enter__(self):
         acquire_order_semaphore()
-    def __exit__(self,exc_type,exc_val,exc_tb):
+    def __exit__(self, exc_type, exc_val, exc_tb):
         release_order_semaphore()

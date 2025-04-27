@@ -3,6 +3,7 @@ from extensions import mongo
 
 user_bp = Blueprint('user', __name__)
 
+
 @user_bp.route("/register", methods=["GET", "POST"])
 def register():
     if request.method == "POST":

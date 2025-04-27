@@ -4,38 +4,23 @@ $(document).ready(function(){
       updateTableWithAnimation(data);
     });
   }
-
   function updateTableWithAnimation(newData){
     let $tbody = $("#priorityTable tbody");
-    let oldRows = $tbody.find("tr");
-    let oldMap = {};
-
-    oldRows.each(function(idx, tr){
-      let orderId = $(tr).data("orderid");
-      oldMap[orderId] = $(tr);
-    });
-
-
     let newHtml = "";
     newData.forEach(function(o){
-      newHtml += `
-        <tr data-orderid="${o.OrderID}">
-          <td>${o.OrderID}</td>
-          <td>${o.CustomerName}</td>
-          <td>${o.ProductName}</td>
-          <td>${o.Quantity}</td>
-          <td>${o.WaitDays}</td>
-          <td>${o.DynamicPriority}</td>
-        </tr>`;
+      newHtml += `<tr data-orderid="${o.OrderID}">
+        <td>${o.OrderID}</td>
+        <td>${o.CustomerID}</td>
+        <td>${o.ProductID}</td>
+        <td>${o.Quantity}</td>
+        <td>${(o.WaitTime/86400).toFixed(2)}</td>
+        <td>${o.DynamicPriority}</td>
+      </tr>`;
     });
-
-
     $tbody.fadeOut(300, function(){
-      $tbody.html(newHtml);
-      $tbody.fadeIn(300);
+      $(this).html(newHtml).fadeIn(300);
     });
   }
-
   loadPriorityData();
   setInterval(loadPriorityData, 5000);
 });

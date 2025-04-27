@@ -1,46 +1,109 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-    <meta charset="UTF-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>Eş Zamanlı Sipariş ve Stok Yönetimi</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
-    {% block head %}{% endblock %}
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  {% block head %}
+  <title>Eş Zamanlı Sipariş ve Stok Yönetimi</title>
+  {% endblock %}
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script>
+    (function() {
+      const theme = localStorage.getItem('theme');
+      if (theme === 'dark') {
+        document.documentElement.classList.add('dark-mode');
+      } else {
+        document.documentElement.classList.remove('dark-mode');
+      }
+      document.addEventListener('DOMContentLoaded', (event) => {
+          if (localStorage.getItem('theme') === 'dark') { // Tekrar kontrol etmek iyi olabilir
+             if(document.body) document.body.classList.add('dark-mode');
+          } else {
+             if(document.body) document.body.classList.remove('dark-mode');
+          }
+      });
+    })();
+  </script>
 </head>
-<body class="bg-light">
-<nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom shadow-sm sticky-top">
-  <div class="container-fluid">
-    <a class="navbar-brand d-flex align-items-center" href="{{ url_for('index') }}">
-      <i class="bi bi-cart-check-fill me-2 text-primary"></i>
-      <span class="fw-bold text-primary">Sipariş Yönetimi</span>
-    </a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav" aria-controls="mainNav" aria-expanded="false" aria-label="Menüyü Aç">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="mainNav">
-      <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
-        <li class="nav-item"><a class="nav-link" href="{{ url_for('index') }}">Ana Sayfa</a></li>
-        <li class="nav-item"><a class="nav-link" href="{{ url_for('customer.panel') }}">Müşteri Paneli</a></li>
-        <li class="nav-item"><a class="nav-link" href="{{ url_for('product.product_panel') }}">Ürün Paneli</a></li>
-        <li class="nav-item"><a class="nav-link" href="{{ url_for('order.order_panel') }}">Sipariş Paneli</a></li>
-        <li class="nav-item"><a class="nav-link" href="{{ url_for('log.panel') }}">Log Paneli</a></li>
-        {% if session.get("customer_name") %}
-          <li class="nav-item"><a class="nav-link" href="{{ url_for('user.logout') }}">Çıkış Yap ({{ session["customer_name"] }})</a></li>
-        {% else %}
-          <li class="nav-item"><a class="nav-link" href="{{ url_for('user.register') }}">Kayıt Ol</a></li>
-          <li class="nav-item"><a class="nav-link" href="{{ url_for('user.login') }}">Giriş Yap</a></li>
-        {% endif %}
-      </ul>
+<body> <nav class="navbar navbar-expand-lg navbar-dark" style="background: linear-gradient(90deg, #1f3c88, #1e7bb8);">
+    <div class="container">
+      <a class="navbar-brand" href="{{ url_for('index') }}">
+        <i class="bi bi-cart-check-fill me-2"></i>Sipariş Yönetimi
+      </a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent" aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarContent">
+        <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+          {% if session.get("customer_id") %}
+            <li class="nav-item">
+              <a class="nav-link {% if request.endpoint == 'index' %}active{% endif %}" href="{{ url_for('index') }}">Ana Sayfa</a>
+            </li>
+             {% if session.get("customer_type") == "Admin" %}
+            <li class="nav-item">
+              <a class="nav-link {% if request.blueprint == 'admin' %}active{% endif %}" href="{{ url_for('admin.dashboard') }}">
+                <i class="bi bi-speedometer2"></i> Yönetici Paneli
+              </a>
+            </li>
+            {% endif %}
+            <li class="nav-item">
+              <a class="nav-link {% if request.blueprint == 'customer' %}active{% endif %}" href="{{ url_for('customer.panel') }}">Müşteri Paneli</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link {% if request.blueprint == 'product' %}active{% endif %}" href="{{ url_for('product.product_panel') }}">Ürün Listesi</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link {% if request.blueprint == 'order' and request.endpoint.endswith('order_panel') %}active{% endif %}" href="{{ url_for('order.order_panel') }}">Sipariş Paneli</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link {% if request.blueprint == 'log' %}active{% endif %}" href="{{ url_for('log.panel') }}">Log Paneli</a>
+            </li>
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle {% if request.blueprint == 'user' and request.endpoint in ['user.profile', 'user.change_password'] %}active{% endif %}" href="#" id="profileDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                 <i class="bi bi-person-circle me-1"></i> Profil ({{ session['customer_name'] }})
+              </a>
+              <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="profileDropdown">
+                <li><a class="dropdown-item" href="{{ url_for('user.profile') }}">Profilim</a></li>
+                <li><a class="dropdown-item" href="{{ url_for('user.change_password') }}">Şifreyi Değiştir</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item" href="{{ url_for('user.logout') }}">Çıkış Yap</a></li>
+              </ul>
+            </li>
+          {% else %}
+            <li class="nav-item"><a class="nav-link {% if request.endpoint == 'index' %}active{% endif %}" href="{{ url_for('index') }}">Ana Sayfa</a></li>
+            <li class="nav-item"><a class="nav-link {% if request.endpoint == 'user.register' %}active{% endif %}" href="{{ url_for('user.register') }}">Kayıt Ol</a></li>
+            <li class="nav-item"><a class="nav-link {% if request.endpoint == 'user.login' %}active{% endif %}" href="{{ url_for('user.login') }}">Giriş Yap</a></li>
+          {% endif %}
+        </ul>
+      </div>
     </div>
-  </div>
-</nav>
-<div class="container py-4">
+  </nav>
+
+  <main class="container my-4">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
     {% block content %}{% endblock %}
-</div>
-<script src="{{ url_for('static', filename='js/main.js') }}"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+  </main>
+
+  <button id="theme-toggle-button" title="Temayı Değiştir">
+    <i class="bi bi-moon-stars-fill"></i> </button>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/theme-toggle.js') }}"></script>
+  {% block scripts %}{% endblock %}
 </body>
 </html>
